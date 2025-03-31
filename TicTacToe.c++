@@ -2,131 +2,106 @@
 // Project Tic Tac Toe
 // 10/03/2024
 
-#define _USE_MATH_DEFINES
-#include <cmath>
 #include <iostream>
-#include <fstream>
-#include <iomanip>
-#include <string>
-#include <regex>
-
 using namespace std;
-string validateInput(string __space);
-string inputMove(int w, string _space, string _board);
-int validateP1(string __board);
-int validateP2(string __board);
+
+int isValidInputX(int x);
+int isValidInputY(int y);
+bool hasWon(char board[3][3]);
+void printBoard(char board[3][3]);
 
 int main()
 {
-	string board = "   |   |   \n 1 | 2 | 3 \n---|---|---\n 4 | 5 | 6 \n---|---|---\n 7 | 8 | 9 \n   |   |   \n";
-	string space;
-
-	cout << board << endl;
+	char board[3][3] = {{' ', ' ', ' '}, {' ', ' ', ' '}, {' ', ' ', ' '}};
+	int x, y;
 
 	for (int i = 9; i > 0; i--)
 	{
 		if (i % 2)
 		{
-			cout << "Player 1's turn, choose a space: ";
-			cin >> space;
-			space = validateInput(space);
-			board = inputMove(i, space, board);
-			cout << board << endl;
-			if (validateP1(board))
-			{
-				cout << "Player 1 wins!" << endl;
-				return 0;
-			}
+			cout << "Player 1's turn (X): \n";
 		}
 		else
 		{
-			cout << "Player 2's turn, choose a space: ";
-			cin >> space;
-			space = validateInput(space);
-			board = inputMove(i, space, board);
-			cout << board << endl;
-			if (validateP2(board))
+			cout << "Player 2's turn (O): \n";
+		}
+
+		// Input validation and checking if position is occupied
+		do
+		{
+			cout << "Please enter x coordinate (1-3): ";
+			cin >> x;
+			x = isValidInputX(x);
+			cout << "Please enter y coordinate (1-3): ";
+			cin >> y;
+			y = isValidInputY(y);
+
+			if (board[x - 1][y - 1] != ' ')
 			{
-				cout << "Player 2 wins!" << endl;
-				return 0;
+				cout << "Position already taken! Choose another.\n";
 			}
+		} while (board[x - 1][y - 1] != ' ');
+
+		board[x - 1][y - 1] = (i % 2) ? 'X' : 'O';
+
+		printBoard(board);
+		if (hasWon(board))
+		{
+			cout << "Player " << ((i % 2) ? "1" : "2") << " wins!\n";
+			return 0;
 		}
 	}
-	cout << "It's a draw!" << endl;
+
+	cout << "It's a tie!\n";
 	return 0;
 }
 
-string validateInput(string __space)
+int isValidInputX(int x)
 {
-	while (true)
+	while (x < 1 || x > 3)
 	{
-		if (__space[0] < '1' || __space[0] > '9' || __space[1] != '\0')
-		{
-			cout << "Invalid input, please enter a number between 1 and 9: ";
-			cin >> __space;
-		}
-		else
-		{
-			return __space;
-		}
+		cout << "Invalid input. Please enter a number between 1 and 3: ";
+		cin >> x;
 	}
+	return x;
 }
 
-string inputMove(int w, string _space, string _board)
+int isValidInputY(int y)
 {
-	int found = _board.find(_space);
-	while (true)
+	while (y < 1 || y > 3)
 	{
-		if (found == -1)
-		{
-			cout << "The space has been taken, please enter an available space: ";
-			cin >> _space;
-			found = _board.find(_space);
-		}
-		else
-		{
-			if (w % 2)
-			{
-				_board.replace(found, 1, "x");
-				return _board;
-			}
-			else
-			{
-				_board.replace(found, 1, "o");
-				return _board;
-			}
-		}
+		cout << "Invalid input. Please enter a number between 1 and 3: ";
+		cin >> y;
 	}
+	return y;
 }
 
-int validateP1(string __board)
+void printBoard(char board[3][3])
 {
-	regex horizontal("x.{3}x.{3}x");
-	regex vertical("x[^]{23}x[^]{23}x");
-	regex diagonal("x[^]{27}x[^]{27}x");
-	regex diagonal2("x[^]{19}x[^]{19}x");
-	if (regex_search(__board, horizontal) || regex_search(__board, vertical) || regex_search(__board, diagonal) || regex_search(__board, diagonal2))
-	{
-		return 1;
-	}
-	else
-	{
-		return 0;
-	}
+	cout << "   |   |   \n";
+	cout << " " << board[0][0] << " | " << board[0][1] << " | " << board[0][2] << "\n";
+	cout << "___|___|___\n";
+	cout << "   |   |   \n";
+	cout << " " << board[1][0] << " | " << board[1][1] << " | " << board[1][2] << "\n";
+	cout << "___|___|___\n";
+	cout << "   |   |   \n";
+	cout << " " << board[2][0] << " | " << board[2][1] << " | " << board[2][2] << "\n";
+	cout << "   |   |   \n";
 }
 
-int validateP2(string __board)
+bool hasWon(char board[3][3])
 {
-	regex horizontal("o.{3}o.{3}o");
-	regex vertical("o[^]{23}o[^]{23}o");
-	regex diagonal("o[^]{27}o[^]{27}o");
-	regex diagonal2("o[^]{19}o[^]{19}o");
-	if (regex_search(__board, horizontal) || regex_search(__board, vertical) || regex_search(__board, diagonal) || regex_search(__board, diagonal2))
+	for (int i = 0; i < 3; i++)
 	{
-		return 1;
+		if (board[i][0] != ' ' && board[i][0] == board[i][1] && board[i][1] == board[i][2])
+			return true;
+		if (board[0][i] != ' ' && board[0][i] == board[1][i] && board[1][i] == board[2][i])
+			return true;
 	}
-	else
-	{
-		return 0;
-	}
+	if (board[0][0] != ' ' && board[0][0] == board[1][1] && board[1][1] == board[2][2])
+		return true;
+	if (board[0][2] != ' ' && board[0][2] == board[1][1] && board[1][1] == board[2][0])
+		return true;
+
+	return false;
 }
